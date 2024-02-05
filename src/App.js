@@ -1,23 +1,39 @@
-import logo from './logo.svg';
 import './App.css';
+import Player from './Player/Player';
 
-function App() {
+
+import { songsdata } from './Player/audios';
+import { useRef, useState, useEffect } from 'react';
+
+const App = () => {
+  const [songs, setSongs] = useState(songsdata);
+  const [isplaying, setisplaying] = useState(false);
+  const [currentSong, setCurrentSong] = useState(songsdata[1]);
+
+  const audioElem = useRef();
+
+  useEffect(() => {
+    if (isplaying) {
+      audioElem.current.play();
+    }
+    else {
+      audioElem.current.pause();
+    }
+  }, [isplaying, currentSong])
+
+  const onPlaying = () => {
+    const duration = audioElem.current.duration;
+    const ct = audioElem.current.currentTime;
+
+    setCurrentSong({ ...currentSong, "progress": ct / duration * 100, "length": duration })
+
+  }
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <audio src={currentSong.url} ref={audioElem} onTimeUpdate={onPlaying} />
+      <Player songs={songs} setSongs={setSongs} isplaying={isplaying} setisplaying={setisplaying} audioElem={audioElem} currentSong={currentSong} setCurrentSong={setCurrentSong} />
     </div>
   );
 }
